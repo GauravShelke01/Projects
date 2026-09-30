@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up - Email Automation System</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="auth-wrap">
+
+  <div class="auth-left">
+    <div class="logo-big">@</div>
+    <h1>Create your<br><span>free account</span></h1>
+    <p>One account gives you your own private dashboard, your own sending
+       email address and your own delivery history.</p>
+    <ul>
+      <li>Free and unlimited</li>
+      <li>Your logs are never shared with other users</li>
+      <li>Add your own Gmail or Outlook sender address</li>
+      <li>Automatic login on your next visit</li>
+    </ul>
+  </div>
+
+  <div class="auth-right">
+    <h2>Sign Up</h2>
+    <p class="sub">It only takes a few seconds.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="post">
+      <div class="field">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" placeholder="Your name" required>
+      </div>
+      <div class="field">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Min 6 characters" required>
+        </div>
+        <div class="field">
+          <label for="confirm">Confirm Password</label>
+          <input type="password" id="confirm" name="confirm" placeholder="Repeat password" required>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" type="submit">Create Account</button>
+    </form>
+
+    <p class="switch">Already registered?
+      <a href="{{ url_for('login') }}">Log in here</a></p>
+
+    <div class="auth-note">
+      This is the account you use to log in to the website. The email address
+      you send your campaigns <em>from</em> is added later on the Settings page.
+    </div>
+  </div>
+</div>
+</body>
+</html>

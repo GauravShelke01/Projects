@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Email Automation System{% endblock %}
+{% block heading %}Dashboard{% endblock %}
+{% block subheading %}Welcome back, {{ user.name }}. Here is your email activity.{% endblock %}
+
+{% block content %}
+
+<div class="stats">
+  <div class="stat">
+    <div class="ico blue">
+      <svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </div>
+    <div>
+      <div class="label">Emails Sent</div>
+      <div class="value">{{ stats.total }}</div>
+      <div class="sub">Total Emails</div>
+    </div>
+  </div>
+  <div class="stat">
+    <div class="ico green">
+      <svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    </div>
+    <div>
+      <div class="label">Delivered</div>
+      <div class="value">{{ stats.delivered }}</div>
+      <div class="sub">{{ stats.delivered_pct }}%</div>
+    </div>
+  </div>
+  <div class="stat">
+    <div class="ico amber">
+      <svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5z"/></svg>
+    </div>
+    <div>
+      <div class="label">Pending</div>
+      <div class="value">{{ stats.pending }}</div>
+      <div class="sub">Scheduled jobs</div>
+    </div>
+  </div>
+  <div class="stat">
+    <div class="ico red">
+      <svg width="22" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </div>
+    <div>
+      <div class="label">Failed</div>
+      <div class="value">{{ stats.failed }}</div>
+      <div class="sub">{{ stats.failed_pct }}%</div>
+    </div>
+  </div>
+</div>
+
+{% if not user.sender_email %}
+<div class="flash error">
+  You have not added your sending email address yet.
+  <a href="{{ url_for('settings_page') }}"><b>Open Settings</b></a> and add the
+  email account that all messages should be sent from.
+</div>
+{% endif %}
+
+<div class="grid-2">
+  <div class="card">
+    <h3>Recent Activity</h3>
+    {% if logs %}
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Date and Time</th></tr></thead>
+          <tbody>
+          {% for log in logs %}
+            <tr>
+              <td>{{ log.name or '-' }}</td>
+              <td>{{ log.email }}</td>
+              <td><span class="pill {{ log.status|lower }}">{{ log.status }}</span></td>
+              <td>{{ log.created_at }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:14px">
+        <a class="btn btn-light btn-sm" href="{{ url_for('logs_page') }}">View all logs</a>
+      </p>
+    {% else %}
+      <div class="empty">
+        No emails have been sent yet.<br><br>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('compose') }}">Send your first email</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="card">
+      <h3>Quick Actions</h3>
+      <a class="btn btn-primary btn-full" style="margin-bottom:10px" href="{{ url_for('compose') }}">Compose and Send</a>
+      <a class="btn btn-light btn-full" style="margin-bottom:10px" href="{{ url_for('recipients_page') }}">Upload CSV or Excel</a>
+      <a class="btn btn-light btn-full" href="{{ url_for('schedule_page') }}">Schedule an Email</a>
+    </div>
+
+    <div class="card">
+      <h3>Upcoming Schedules</h3>
+      {% if schedules %}
+        {% for s in schedules %}
+          <div class="summary-row">
+            <span>{{ s.subject[:24] }}{% if s.subject|length > 24 %}...{% endif %}</span>
+            <b>{{ s.run_at }}</b>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty" style="padding:18px">No scheduled emails.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

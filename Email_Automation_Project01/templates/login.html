@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Email Automation System</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="auth-wrap">
+
+  <div class="auth-left">
+    <div class="logo-big">@</div>
+    <h1>Email Automation<br><span>System</span></h1>
+    <p>Send personalised bulk emails to hundreds of recipients from a single
+       CSV or Excel file, schedule them for later and track every delivery.</p>
+    <ul>
+      <li>Bulk and single email sending</li>
+      <li>CSV and Excel file support</li>
+      <li>Personalised content with placeholders</li>
+      <li>Delivery status and complete logs</li>
+      <li>Your data stays private to your account</li>
+    </ul>
+  </div>
+
+  <div class="auth-right">
+    <h2>Welcome back</h2>
+    <p class="sub">Log in to continue to your dashboard.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="post">
+      <div class="field">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Your password" required>
+      </div>
+      <button class="btn btn-primary btn-full" type="submit">Log In</button>
+    </form>
+
+    <p class="switch">Do not have an account?
+      <a href="{{ url_for('signup') }}">Create one</a></p>
+
+    <div class="auth-note">
+      You stay logged in on this browser for one year, so you will be signed in
+      automatically the next time you open the website. All of your logs and
+      settings are saved to your account.
+    </div>
+  </div>
+</div>
+</body>
+</html>

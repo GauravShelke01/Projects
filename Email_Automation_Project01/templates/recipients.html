@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Recipients{% endblock %}
+{% block heading %}Recipients{% endblock %}
+{% block subheading %}Upload a CSV or Excel file and check the recipient list.{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+  <div>
+    <div class="card">
+      <h3>Upload Recipients File</h3>
+      <form action="{{ url_for('upload_file') }}" method="post"
+            enctype="multipart/form-data" class="inline-form">
+        <input type="file" name="datafile" accept=".csv,.xlsx,.xls" required style="flex:1;min-width:230px">
+        <button class="btn btn-primary" type="submit">Upload File</button>
+      </form>
+      <div class="hint">Accepted formats: <b>.csv</b>, <b>.xlsx</b>, <b>.xls</b>.
+        The file must contain a column named <b>email</b>. Any other column such as
+        name, city or company can be used as a placeholder.</div>
+    </div>
+
+    <div class="card">
+      <h3>Select a File</h3>
+      <form method="get" class="inline-form">
+        <select name="file" style="max-width:320px">
+          {% for f in files %}
+            <option value="{{ f }}" {% if f == selected %}selected{% endif %}>{{ f }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn btn-light" type="submit">Load File</button>
+        {% if summary and not summary.error %}
+          <span class="pill completed">Total: {{ summary.total }}</span>
+          <span class="pill valid">Valid: {{ summary.valid }}</span>
+          <span class="pill invalid">Invalid: {{ summary.invalid }}</span>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <!-- ========== SINGLE EMAIL (right under the recipients file panel) ========== -->
+  <div class="card">
+    <h3>Send a Single Email</h3>
+    <p class="hint" style="margin-bottom:14px">
+      Send one email to one address without using a file.</p>
+    <form action="{{ url_for('send_single_email') }}" method="post">
+      <input type="hidden" name="back" value="recipients_page">
+      <div class="field">
+        <label for="to_email">To</label>
+        <input type="email" id="to_email" name="to_email"
+               placeholder="person@example.com" required>
+      </div>
+      <div class="field">
+        <label for="single_subject">Subject</label>
+        <input type="text" id="single_subject" name="single_subject"
+               placeholder="Subject line" required>
+      </div>
+      <div class="field">
+        <label for="single_body">Message</label>
+        <textarea id="single_body" name="single_body" rows="4"
+                  placeholder="Write your message here..." required></textarea>
+      </div>
+      <button class="btn btn-primary btn-full" type="submit">Send Single Email</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Recipient List - {{ selected or 'no file selected' }}</h3>
+  {% if error %}
+    <div class="flash error">{{ error }}</div>
+  {% elif rows %}
+    <div class="table-wrap" style="max-height:480px;overflow-y:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            {% for col in rows[0].keys() if not col.startswith('_') %}<th>{{ col }}</th>{% endfor %}
+            <th>Validation</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for r in rows %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            {% for col in rows[0].keys() if not col.startswith('_') %}<td>{{ r[col] }}</td>{% endfor %}
+            <td>
+              {% if r._valid %}<span class="pill valid">Valid</span>
+              {% else %}<span class="pill invalid">Invalid</span>{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:14px">
+      <a class="btn btn-primary btn-sm" href="{{ url_for('compose', csv_file=selected) }}">
+        Compose an email for this list</a>
+    </p>
+  {% else %}
+    <div class="empty">No recipients found. Upload a CSV or Excel file above.</div>
+  {% endif %}
+</div>
+{% endblock %}

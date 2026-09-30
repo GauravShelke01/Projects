@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block heading %}Settings{% endblock %}
+{% block subheading %}Add the email address that all your messages are sent from.{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+
+  <div class="card">
+    <h3>Your Sending Email Account</h3>
+    <form method="post">
+      <div class="field">
+        <label for="sender_name">Display Name</label>
+        <input type="text" id="sender_name" name="sender_name"
+               value="{{ user.sender_name or user.name }}"
+               placeholder="The name recipients will see">
+      </div>
+      <div class="field">
+        <label for="sender_email">Sender Email Address</label>
+        <input type="email" id="sender_email" name="sender_email"
+               value="{{ user.sender_email }}" placeholder="yourname@gmail.com" required>
+        <div class="hint">Every email, single or bulk, is sent from this address.</div>
+      </div>
+      <div class="field">
+        <label for="sender_password">App Password (16 characters)</label>
+        <input type="password" id="sender_password" name="sender_password"
+               placeholder="{% if user.sender_password %}Saved - leave blank to keep it{% else %}abcd efgh ijkl mnop{% endif %}">
+        <div class="hint">This is not your normal Gmail password. See the steps on the right.</div>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="smtp_server">SMTP Server</label>
+          <input type="text" id="smtp_server" name="smtp_server"
+                 value="{{ user.smtp_server or cfg.DEFAULT_SMTP_SERVER }}">
+        </div>
+        <div class="field">
+          <label for="smtp_port">Port</label>
+          <input type="number" id="smtp_port" name="smtp_port"
+                 value="{{ user.smtp_port or cfg.DEFAULT_SMTP_PORT }}">
+        </div>
+      </div>
+      <button class="btn btn-primary" type="submit">Save Sender Settings</button>
+    </form>
+
+    <div class="divider"></div>
+
+    <h3>Send a Test Email</h3>
+    <p class="hint" style="margin-bottom:14px">
+      Send a message to yourself to confirm the settings work.</p>
+    <form action="{{ url_for('send_single_email') }}" method="post">
+      <input type="hidden" name="back" value="settings_page">
+      <input type="hidden" name="single_subject" value="Test Email - Email Automation System">
+      <input type="hidden" name="single_body"
+             value="This is a test email from the Email Automation System. If you received this message, your SMTP settings are working correctly.">
+      <div class="field">
+        <label for="to_email">Send test email to</label>
+        <input type="email" id="to_email" name="to_email"
+               value="{{ user.sender_email }}" required>
+      </div>
+      <button class="btn btn-green" type="submit">Send Test Email</button>
+    </form>
+  </div>
+
+  <div>
+    <div class="card">
+      <h3>How to get a Gmail App Password</h3>
+      <div class="summary-row"><span>1. Open myaccount.google.com and go to Security</span></div>
+      <div class="summary-row"><span>2. Turn on 2-Step Verification (required)</span></div>
+      <div class="summary-row"><span>3. Search for "App passwords"</span></div>
+      <div class="summary-row"><span>4. Choose App: Mail, Device: Other</span></div>
+      <div class="summary-row"><span>5. Copy the 16 character code and paste it here</span></div>
+      <div class="hint" style="margin-top:12px">
+        Other providers: Outlook uses smtp.office365.com port 587,
+        Yahoo uses smtp.mail.yahoo.com port 587.</div>
+    </div>
+
+    <div class="card">
+      <h3>Account</h3>
+      <div class="summary-row"><span>Name</span><b>{{ user.name }}</b></div>
+      <div class="summary-row"><span>Login Email</span><b>{{ user.email }}</b></div>
+      <div class="summary-row"><span>Member Since</span><b>{{ user.created_at[:10] }}</b></div>
+
+      <div class="divider"></div>
+      <form action="{{ url_for('change_password') }}" method="post">
+        <div class="field">
+          <label for="new_password">Change Login Password</label>
+          <input type="password" id="new_password" name="new_password"
+                 placeholder="New password (min 6 characters)" required>
+        </div>
+        <button class="btn btn-light" type="submit">Update Password</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Compose Email{% endblock %}
+{% block heading %}Compose Email{% endblock %}
+{% block subheading %}Write once, send to everybody in your file with personalised content.{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+
+  <!-- ================= BULK EMAIL FORM ================= -->
+  <form method="post" id="composeForm" class="card">
+    <h3>Bulk Email</h3>
+
+    <div class="field">
+      <label for="subject">Subject</label>
+      <input type="text" id="subject" name="subject" value="{{ subject }}" required>
+    </div>
+
+    <div class="field">
+      <label for="body">Message</label>
+      <textarea id="body" name="body" rows="11" required>{{ body }}</textarea>
+      <div class="hint">Available placeholders for this file:</div>
+      <div style="margin-top:6px">
+        {% if summary and summary.columns %}
+          {% for col in summary.columns %}
+            <span class="chip">{{ '{{' }}{{ col }}{{ '}}' }}</span>
+          {% endfor %}
+        {% else %}
+          <span class="chip">{{ '{{name}}' }}</span>
+          <span class="chip">{{ '{{email}}' }}</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="inline-form">
+      <button class="btn btn-primary" type="submit" name="action" value="send">
+        Send To All Recipients
+      </button>
+      <button class="btn btn-light" type="submit" name="action" value="preview">
+        Preview
+      </button>
+      <a class="btn btn-light" href="{{ url_for('schedule_page') }}">Schedule Instead</a>
+    </div>
+    <div class="hint">Sending to a large list can take a minute. Please wait until
+      the page finishes loading.</div>
+
+    {% if preview %}
+      <div class="divider"></div>
+      <h3>Preview for the first recipient</h3>
+      <div class="hint" style="margin-bottom:6px">To: <b>{{ preview.to }}</b></div>
+      <div class="hint" style="margin-bottom:10px">Subject: <b>{{ preview.subject }}</b></div>
+      <div class="preview-box">{{ preview.body }}</div>
+    {% endif %}
+  </form>
+
+  <div>
+    <!-- ================= RECIPIENTS FILE ================= -->
+    <div class="card">
+      <h3>Recipients (CSV or Excel)</h3>
+
+      <div class="field">
+        <label for="csv_file">Select a file</label>
+        <select id="csv_file" name="csv_file" form="composeForm">
+          {% for f in files %}
+            <option value="{{ f }}" {% if f == selected %}selected{% endif %}>{{ f }}</option>
+          {% endfor %}
+        </select>
+        <div class="hint">After changing the file, press Load to refresh the counts.</div>
+      </div>
+
+      <button class="btn btn-light btn-sm" type="submit" name="action" value="load"
+              form="composeForm" style="margin-bottom:14px">Load File</button>
+
+      <form action="{{ url_for('upload_file') }}" method="post"
+            enctype="multipart/form-data" class="inline-form" style="margin-bottom:14px">
+        <input type="file" name="datafile" accept=".csv,.xlsx,.xls" style="flex:1">
+        <button class="btn btn-green btn-sm" type="submit">Upload</button>
+      </form>
+
+      <div class="summary-row"><span>Total Recipients</span>
+        <b>{{ summary.total if summary else 0 }}</b></div>
+      <div class="summary-row"><span>Valid Emails</span>
+        <b class="ok">{{ summary.valid if summary else 0 }}</b></div>
+      <div class="summary-row"><span>Invalid Emails</span>
+        <b class="bad">{{ summary.invalid if summary else 0 }}</b></div>
+      {% if summary and summary.error %}
+        <div class="flash error" style="margin-top:12px">{{ summary.error }}</div>
+      {% endif %}
+    </div>
+
+    <!-- ========== SINGLE EMAIL (right under the file panel) ========== -->
+    <div class="card">
+      <h3>Send a Single Email</h3>
+      <p class="hint" style="margin-bottom:14px">
+        No file needed. Use this to send one quick email to one address.</p>
+
+      <form action="{{ url_for('send_single_email') }}" method="post">
+        <input type="hidden" name="back" value="compose">
+        <div class="field">
+          <label for="to_email">To</label>
+          <input type="email" id="to_email" name="to_email"
+                 placeholder="person@example.com" required>
+        </div>
+        <div class="field">
+          <label for="single_subject">Subject</label>
+          <input type="text" id="single_subject" name="single_subject"
+                 placeholder="Subject line" required>
+        </div>
+        <div class="field">
+          <label for="single_body">Message</label>
+          <textarea id="single_body" name="single_body" rows="5"
+                    placeholder="Write your message here..." required></textarea>
+        </div>
+        <button class="btn btn-primary btn-full" type="submit">Send Single Email</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

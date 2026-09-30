@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Schedule Email{% endblock %}
+{% block heading %}Schedule Email{% endblock %}
+{% block subheading %}Set a date and time and the emails are sent automatically.{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+
+  <div class="card">
+    <h3>New Schedule</h3>
+    <form method="post">
+      <div class="field">
+        <label for="subject">Subject</label>
+        <input type="text" id="subject" name="subject" value="{{ default_subject }}" required>
+      </div>
+      <div class="field">
+        <label for="body">Message</label>
+        <textarea id="body" name="body" rows="8" required>{{ default_body }}</textarea>
+      </div>
+      <div class="field">
+        <label for="csv_file">Recipients File (CSV or Excel)</label>
+        <select id="csv_file" name="csv_file" required>
+          {% for f in files %}<option value="{{ f }}">{{ f }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="run_at">Date and Time</label>
+          <input type="datetime-local" id="run_at" name="run_at" required>
+        </div>
+        <div class="field">
+          <label for="repeat_type">Repeat</label>
+          <select id="repeat_type" name="repeat_type">
+            <option value="once">Once</option>
+            <option value="daily">Daily</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" type="submit">Schedule Email</button>
+      <div class="hint">The background scheduler checks every 20 seconds, so the
+        application must stay running for scheduled emails to go out.</div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Scheduled Jobs</h3>
+    {% if schedules %}
+      <div class="table-wrap" style="max-height:470px;overflow-y:auto">
+        <table>
+          <thead><tr><th>#</th><th>Subject</th><th>Run At</th><th>Repeat</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+          {% for s in schedules %}
+            <tr>
+              <td>{{ s.id }}</td>
+              <td>{{ s.subject[:22] }}{% if s.subject|length > 22 %}...{% endif %}</td>
+              <td style="white-space:nowrap">{{ s.run_at }}</td>
+              <td>{{ s.repeat_type }}</td>
+              <td><span class="pill {{ s.status|lower }}">{{ s.status }}</span></td>
+              <td><a class="btn btn-red btn-sm" href="{{ url_for('schedule_delete', sid=s.id) }}">Delete</a></td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty">No scheduled emails yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

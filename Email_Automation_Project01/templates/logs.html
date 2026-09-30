@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Logs{% endblock %}
+{% block heading %}Logs and Delivery Status{% endblock %}
+{% block subheading %}Every email you have sent, with its status and time.{% endblock %}
+
+{% block content %}
+
+<div class="stats" style="grid-template-columns:repeat(3,1fr)">
+  <div class="stat">
+    <div class="ico blue">T</div>
+    <div><div class="label">Total Logs</div><div class="value">{{ stats.total }}</div></div>
+  </div>
+  <div class="stat">
+    <div class="ico green">S</div>
+    <div><div class="label">Sent</div><div class="value">{{ stats.delivered }}</div>
+      <div class="sub">{{ stats.delivered_pct }}%</div></div>
+  </div>
+  <div class="stat">
+    <div class="ico red">F</div>
+    <div><div class="label">Failed</div><div class="value">{{ stats.failed }}</div>
+      <div class="sub">{{ stats.failed_pct }}%</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Email Logs</h3>
+
+  <form method="get" class="inline-form" style="margin-bottom:16px">
+    <select name="status" style="max-width:150px">
+      {% for s in ['All', 'Sent', 'Failed'] %}
+        <option value="{{ s }}" {% if s == status %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+    <input type="text" name="search" value="{{ search }}"
+           placeholder="Search by name or email" style="max-width:260px">
+    <button class="btn btn-primary btn-sm" type="submit">Search</button>
+    <a class="btn btn-light btn-sm" href="{{ url_for('logs_page') }}">Reset</a>
+    <a class="btn btn-light btn-sm" href="{{ url_for('logs_export') }}">Export CSV</a>
+    <a class="btn btn-red btn-sm" href="{{ url_for('logs_clear') }}">Clear Logs</a>
+  </form>
+
+  {% if logs %}
+    <div class="table-wrap" style="max-height:540px;overflow-y:auto">
+      <table>
+        <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Subject</th>
+          <th>Status</th><th>Message</th><th>Date and Time</th></tr></thead>
+        <tbody>
+        {% for log in logs %}
+          <tr>
+            <td>{{ log.id }}</td>
+            <td>{{ log.name or '-' }}</td>
+            <td>{{ log.email }}</td>
+            <td>{{ log.subject[:32] if log.subject else '-' }}</td>
+            <td><span class="pill {{ log.status|lower }}">{{ log.status }}</span></td>
+            <td style="font-size:12px;color:#6b7280">{{ log.message[:46] if log.message else '' }}</td>
+            <td style="white-space:nowrap">{{ log.created_at }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty">No logs found.</div>
+  {% endif %}
+</div>
+{% endblock %}
